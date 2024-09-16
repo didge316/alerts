@@ -28,20 +28,28 @@ async def send_message_to_telegram(message):
 
 
 
-def main(url):
+def main(url,log_file):
+    try:
+        #Delete old log file
+        if os.path.exists(log_file):
+            os.remove(log_file)
+        kill_chrome_processes()
+        driver, wait = get_url(url)
+        powercity(driver,wait,log_file)
+                
+        message = 'Hex Flex Protocol\n'
+        message += '--------------------\n'
+        message += process_data(log_file,'0x22Cf...7fcd','rolling_private')
+        message += process_data(log_file,'0x6AfB...e57E', 'liquid_orange')
+        
+        #send data to telegram
+        asyncio.run(send_message_to_telegram(message))
+        return 0
     
-    kill_chrome_processes()
-    driver, wait = get_url(url)
-    powercity(driver,wait)
-            
-    message = 'Hex Flex Protocol\n'
-    message += '--------------------\n'
-    message += process_data('0x22Cf...7fcd','rolling_private')
-    message += process_data('0x6AfB...e57E', 'liquid_orange')
-    
-    #send data to telegram
-    asyncio.run(send_message_to_telegram(message))
+    except Exception as e:
+        return 1
     
 if __name__ == "__main__":
-    main('https://www.flex.powercity.io/#/')
-    
+    exit_code = main('https://www.flex.powercity.io/#/','flex_log.txt')
+    print(exit_code)
+    exit(exit_code)

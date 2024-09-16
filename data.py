@@ -1,8 +1,8 @@
-def process_data(addy, name):
+def process_data(log_file, addy, name):
     vaults_below = 0
     collateral = 0
     data_list = []
-    with open('data_log.txt', 'r') as file:
+    with open(log_file, 'r') as file:
         data = file.readlines()
     for line in data:
         if len(line) > 5:
@@ -17,15 +17,19 @@ def process_data(addy, name):
             collateral += add_collateral
             
             if sline[0] == addy:
-                 
+                 #my_address = sline
                  break
+            
     collateral = round(collateral)
     collateral = "{:,}".format(collateral)
     
     
     message = (f'{name} | {addy[:5]}\n')
     message += (f'{vaults_below} Vaults Below\n')             
-    message += (f'${collateral} Buffer\n\n')
+    message += (f'${collateral} Buffer\n')
+    message += (f'Vault Collateral: {sline[3]}\n\n')
     
+    #print(message)
     return message
 
+#process_data('ll_data_log.txt','0x121C...5a33','Orange Pls Withdrawals')

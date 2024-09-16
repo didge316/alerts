@@ -28,20 +28,28 @@ async def send_message_to_telegram(message):
 
 
 
-def main(url):
+def main(url,log_file):
+    try:
+        #Delete old log file
+        if os.path.exists(log_file):
+            os.remove(log_file)
+        
+        kill_chrome_processes()
+        driver, wait = get_url(url)
+        powercity(driver,wait,log_file)
+                
+        message = 'PulseX Earn Protocol\n'
+        message += '--------------------\n'
+        message += process_data(log_file,'0x2B12...Cd6C','PLS PV Blue')
+        message += process_data(log_file,'0x4A87...2CFC', 'PlsX 2nd Ledger')
+        
+        #send data to telegram
+        asyncio.run(send_message_to_telegram(message))
+        return 0
     
-    kill_chrome_processes()
-    driver, wait = get_url(url)
-    powercity(driver,wait)
-            
-    message = 'PulseX Earn Protocol\n'
-    message += '--------------------\n'
-    message += process_data('0x2B12...Cd6C','PLS PV Blue')
-    message += process_data('0x4A87...2CFC', 'PlsX 2nd Ledger')
-    
-    #send data to telegram
-    asyncio.run(send_message_to_telegram(message))
-    
+    except Exception as e:
+        return 1    
 if __name__ == "__main__":
-    main('https://www.earn.powercity.io/#/')
-    
+    exit_code = main('https://www.earn.powercity.io/#/','earn_log_file.txt')
+    print(exit_code)
+    exit(exit_code)

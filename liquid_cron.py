@@ -29,21 +29,29 @@ async def send_message_to_telegram(message):
 
 
 def main(url,log_file):
-    #Delete old log file
-    if os.path.exists(log_file):
-        os.remove(log_file)
-    kill_chrome_processes()
-    driver, wait = get_url(url)
-    liquid(driver,wait,'0x121C...5a33')
-            
-    message = 'Liquid Loans\n'
-    message += '--------------------\n'
-    message += process_data('ll_data_log.txt','0x121C...5a33','Orange Pls Withdrawals')
+    try:
+        #Delete old log file
+        if os.path.exists(log_file):
+            os.remove(log_file)
+        kill_chrome_processes()
+        driver, wait = get_url(url)
+        liquid(driver,wait,'0x121C...5a33',log_file)
+                
+        message = 'Liquid Loans\n'
+        message += '--------------------\n'
+        message += process_data(log_file,'0x121C...5a33','Orange Pls Withdrawals')
+        
+        
+        #send data to telegram
+        asyncio.run(send_message_to_telegram(message))
+
+        return 0
     
-    
-    #send data to telegram
-    asyncio.run(send_message_to_telegram(message))
+    except Exception as e:
+        return 1
     
 if __name__ == "__main__":
-    main('https://go.liquidloans.io/#/liquidations','ll_data_log.txt')
+    exit_code = main('https://go.liquidloans.io/#/liquidations','ll_data_log.txt')
+    
+    exit(exit_code)
     
